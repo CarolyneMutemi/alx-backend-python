@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Has zoom_array function.
+"""
 from typing import Tuple, List
 
 
