@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch, PropertyMock
 from parameterized import parameterized
 from client import GithubOrgClient
+import client
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -46,3 +47,29 @@ class TestGithubOrgClient(unittest.TestCase):
             organization = GithubOrgClient(name)
             self.assertEqual(organization._public_repos_url,
                              payload["repos_url"])
+
+    @parameterized.expand([
+        ("google", "https://github.com/googleURL",
+         {"repo1": {"name": "images"},
+          "repo2": {"name": "videos"},
+          "repo3": {"name": "map"}}),
+        ("abc", "https://github.com/abcURL",
+         {"repo1": {"name": "clients"},
+          "repo2": {"name": "suppliers"},
+          "repo3": {"name": "services"}})
+    ])
+    @patch("client.get_json")
+    def test_public_repos(self, name, url, payload, mock_get_json):
+        """
+        Tests the TestGithubOrgClient.test_public_repos method.
+        """
+        with patch("client.GithubOrgClient._public_repos_url",
+                   new_callable=PropertyMock) as mocked_url:
+            mocked_url.return_value = url
+            mock_get_json.return_value = payload
+            mocked_url.reset_mock()
+            org = GithubOrgClient(name)
+            repos_list = [payload[repo]["name"] for repo in payload]
+            self.assertEqual(org.public_repos(), repos_list)
+            mock_get_json.assert_called_once_with(url)
+            mocked_url.assert_called_once()
