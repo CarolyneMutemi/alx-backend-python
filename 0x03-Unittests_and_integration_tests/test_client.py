@@ -70,6 +70,8 @@ class TestGithubOrgClient(unittest.TestCase):
             mocked_url.reset_mock()
             org = GithubOrgClient(name)
             repos_list = [payload[repo]["name"] for repo in payload]
+            org.public_repos()
+            org.public_repos()
             self.assertEqual(org.public_repos(), repos_list)
-            mock_get_json.assert_called_once()
+            mock_get_json.assert_called_once_with(url)
             mocked_url.assert_called_once()
